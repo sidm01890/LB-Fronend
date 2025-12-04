@@ -33,19 +33,26 @@ const MANAGER_SIDEBAR = [
     db_id: 10,
   },
   {
+    id: "database-collection",
+    label: "Database Collections",
+    route: "/database-collection",
+    icon: "dataset",
+    db_id: 10,
+  },
+  {
     id: "uploads",
     label: "Uploads",
     route: "/uploads",
     icon: "upload_file",
     db_id: 9,
   },
-  {
-    id: "excel-db-mapping",
-    label: "Excel-DB Mapping",
-    route: "/excel-db-mapping",
-    icon: "handshake",
-    db_id: 2,
-  },
+  // {
+  //   id: "excel-db-mapping",
+  //   label: "Excel-DB Mapping",
+  //   route: "/excel-db-mapping",
+  //   icon: "handshake",
+  //   db_id: 2,
+  // },
   {
     id: "definelogic",
     label: "Define Logic",
@@ -88,8 +95,10 @@ const Sidebar = () => {
       let allowedModuleStr = localStorage.getItem("allowedModules");
       allowedModules = JSON.parse(allowedModuleStr);
       console.log("allowedModules", allowedModules);
-      let allowedModulesArray = MANAGER_SIDEBAR?.filter((sideItem) =>
-        Array.isArray(allowedModules) && allowedModules?.includes(sideItem?.db_id)
+      let allowedModulesArray = MANAGER_SIDEBAR?.filter(
+        (sideItem) =>
+          Array.isArray(allowedModules) &&
+          allowedModules?.includes(sideItem?.db_id)
       );
       // Fallback: if no allowedModules provided, show full sidebar
       if (!Array.isArray(allowedModules) || allowedModulesArray?.length === 0) {

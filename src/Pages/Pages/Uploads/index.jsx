@@ -11,10 +11,9 @@ import useUploads from "./useUploads";
 
 export default function Uploads() {
   const {
-    dataSource,
+    collections,
     values,
     handleChange,
-    paymentTypeList,
     handleFileChange,
     onSubmit,
     files,
@@ -22,46 +21,25 @@ export default function Uploads() {
 
   return (
     <div className="">
-      <BlankCard header={<h4 class="box-title font-bold text-base">UPLOAD</h4>}>
+      <BlankCard
+        header={<h4 className="box-title font-bold text-base">UPLOAD</h4>}
+      >
         <div className="pt-3 w-full">
           <div className="md:w-1/3 mb-3">
             <CustomSelect
-              label="Type"
-              data={[{ category: "-Select Type-" }, ...dataSource]}
-              option_value={"category"}
-              option_label={"category"}
-              onChange={(e) => handleChange("type", e.target.value)}
-              value={values?.type}
-              required
-            />
-          </div>
-          <div className="md:w-1/3 mb-3">
-            <CustomSelect
-              label="Tender"
-              required
+              label="Collection"
               data={[
-                { tender: "-Select Tender-", types: [] },
-                ...(dataSource?.filter(
-                  (type) => type.category === values?.type
-                )[0]?.tenders || []),
+                { collection: "-Select Collection-" },
+                ...collections.map((col) => ({
+                  collection:
+                    typeof col === "string" ? col : col?.collection || col,
+                })),
               ]}
-              option_value={"tender"}
-              option_label={"tender"}
-              onChange={(e) => handleChange("tender", e.target.value)}
-              value={values?.tender}
-              disabled={!values?.type}
-            />
-          </div>
-          <div className="md:w-1/3 mb-3">
-            <CustomSelect
-              label="Payment"
+              option_value={"collection"}
+              option_label={"collection"}
+              onChange={(e) => handleChange("collection", e.target.value)}
+              value={values?.collection}
               required
-              data={paymentTypeList}
-              option_value={"dataSource"}
-              option_label={"type"}
-              onChange={(e) => handleChange("payment", e.target.value)}
-              value={values?.payment}
-              disabled={!values?.tender}
             />
           </div>
           <div className="custom-file-picker">

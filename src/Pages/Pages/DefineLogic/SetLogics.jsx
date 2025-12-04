@@ -30,20 +30,27 @@ const getNextDate = (dateString) => {
   return moment(dateString).add(1, "day").format("YYYY-MM-DD");
 };
 
-const SetLogics = ({ group, index }) => {
+const SetLogics = ({ group, index, customDataSetOptions, reportName }) => {
   const dispatch = useDispatch();
   const { setToastMessage, setLoading } = useLoader();
-  const logicData = group?.recologic;
   let { tableList, activeLogic, logicGroups } = useSelector(
     (state) => state.LogicsService
   );
+  // Prefer Redux logicGroups if available, otherwise use group prop
+  const logicData = logicGroups?.[index]?.recologic || group?.recologic || [];
 
   const [dataSetOptions, setDataSetOptions] = useState(CUSTOM_OPTION);
-  const { saveFormulas, validateFormula } = useLogic();
+  const { saveFormulas, validateFormula, updateReportFormulas } = useLogic();
   useEffect(() => {
-    let updatedDataset = CUSTOM_OPTION.concat(tableList);
-    setDataSetOptions(updatedDataset);
-  }, [tableList]);
+    // If customDataSetOptions is provided, use it; otherwise use tableList
+    if (customDataSetOptions && customDataSetOptions.length > 0) {
+      let updatedDataset = CUSTOM_OPTION.concat(customDataSetOptions);
+      setDataSetOptions(updatedDataset);
+    } else {
+      let updatedDataset = CUSTOM_OPTION.concat(tableList);
+      setDataSetOptions(updatedDataset);
+    }
+  }, [tableList, customDataSetOptions]);
 
   const [startDate, setStartDate] = useState(
     group?.effectiveFrom ? new Date(group?.effectiveFrom) : new Date()
@@ -56,7 +63,12 @@ const SetLogics = ({ group, index }) => {
   );
 
   function optionsForDataSet(index) {
-    let options = CUSTOM_OPTION.concat(tableList);
+    // Use customDataSetOptions if provided, otherwise use tableList
+    const baseOptions =
+      customDataSetOptions && customDataSetOptions.length > 0
+        ? CUSTOM_OPTION.concat(customDataSetOptions)
+        : CUSTOM_OPTION.concat(tableList);
+    let options = [...baseOptions];
     for (let i = 0; i < index; i++) {
       options.push({
         ...logicData[i],
@@ -106,24 +118,46 @@ const SetLogics = ({ group, index }) => {
     dispatch(setLogicData(localLogicData));
   };
 
-  const validateAndSave = () => {
+  const validateAndSave = async () => {
     let requestObj = validateFormula(
       group?.effectiveType,
       moment(startDate).format("YYYY-MM-DD"),
       endDate ? moment(endDate).format("YYYY-MM-DD") : ""
     );
 
-    if (requestObj.isValid) {
-      saveFormulas({ ...requestObj, id: group?.id || undefined });
+    // If reportName is provided, we're in ManageFormulas context - use PUT API
+    if (reportName) {
+      // Transform logicData to the required format
+      const formulas = logicData.map((formula) => ({
+        formula_name: formula.logicNameKey || formula.logicName,
+        formula_value: formula.excelFormulaText || formula.formulaText || "",
+      }));
+
+      const success = await updateReportFormulas(reportName, formulas);
+      if (success) {
+        // Update Redux state to reflect the saved state
+        let logicGroupList = [...logicGroups];
+        logicGroupList[index] = {
+          ...logicGroups[index],
+          recologic: logicData,
+        };
+        dispatch(setLogicGroups(logicGroupList));
+        dispatch(setLogicData(logicData));
+      }
     } else {
-      let localLogicData = [...requestObj?.response];
-      let logicGroupList = [...logicGroups];
-      logicGroupList[index] = {
-        ...logicGroups[index],
-        recologic: localLogicData,
-      };
-      dispatch(setLogicGroups(logicGroupList));
-      dispatch(setLogicData(localLogicData));
+      // Regular logic groups flow
+      if (requestObj.isValid) {
+        saveFormulas({ ...requestObj, id: group?.id || undefined });
+      } else {
+        let localLogicData = [...requestObj?.response];
+        let logicGroupList = [...logicGroups];
+        logicGroupList[index] = {
+          ...logicGroups[index],
+          recologic: localLogicData,
+        };
+        dispatch(setLogicGroups(logicGroupList));
+        dispatch(setLogicData(localLogicData));
+      }
     }
   };
 
@@ -259,13 +293,6 @@ const SetLogics = ({ group, index }) => {
             onClick={() => addNewFormula()}
             style={{ minWidth: "120px" }}
           />
-          {logicData?.length > 0 && (
-            <OutlineButton
-              label="COPY GROUP"
-              onClick={() => copyGroup()}
-              style={{ minWidth: "120px" }}
-            />
-          )}
           <PrimaryButton label="SAVE" onClick={validateAndSave} />
         </div>
       </div>

@@ -38,7 +38,8 @@
 
 // Devyani URLS
 // Auto-detect environment and use appropriate URLs
-const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+const isDevelopment =
+  import.meta.env.DEV || import.meta.env.MODE === "development";
 
 // Devyani URLS - LOCAL DEVELOPMENT
 const devBaseURL = "http://localhost:8034";
@@ -55,16 +56,20 @@ const stagingReconciiAdminBaseURL = "https://reconciistageapi.corepeelers.com";
 // Use development URLs if in dev mode, otherwise use staging
 const baseURL = isDevelopment ? devBaseURL : stagingBaseURL;
 const ssoBaseURL = isDevelopment ? devSsoBaseURL : stagingSsoBaseURL;
-const reconciiBaseURL = isDevelopment ? devReconciiBaseURL : stagingReconciiBaseURL;
-const reconciiAdminBaseURL = isDevelopment ? devReconciiAdminBaseURL : stagingReconciiAdminBaseURL;
+const reconciiBaseURL = isDevelopment
+  ? devReconciiBaseURL
+  : stagingReconciiBaseURL;
+const reconciiAdminBaseURL = isDevelopment
+  ? devReconciiAdminBaseURL
+  : stagingReconciiAdminBaseURL;
 
 // Log environment info for debugging
 if (isDevelopment) {
-  console.log('🔧 Development Mode: Using localhost URLs');
-  console.log('📡 Backend API:', baseURL);
-  console.log('📡 Uploader API:', reconciiBaseURL);
+  console.log("🔧 Development Mode: Using localhost URLs");
+  console.log("📡 Backend API:", baseURL);
+  console.log("📡 Uploader API:", reconciiBaseURL);
 } else {
-  console.log('🌐 Staging/Production Mode: Using remote URLs');
+  console.log("🌐 Staging/Production Mode: Using remote URLs");
 }
 
 // const sso = "/devyani-sso-service/api/v1";
@@ -176,7 +181,7 @@ const apiEndpoints = {
   // Node
   _3PO_DATA: `${reconciliationNodeURL}/threePODashboardData`,
   DASHBOARD_DATA: `${reconciliationNodeURL}/instore-data`,
-  
+
   // New Dashboard Sales API (from daily_sales_summary table)
   DASHBOARD_SALES: `${reconciliationNodeURL}/dashboard-sales`,
 
@@ -248,12 +253,26 @@ const apiEndpoints = {
   // NEW_DATA_SOURCE_FIELDS uses backend API (not uploader service) for proper data structure
   // Note: This endpoint is on the backend API, not the uploader service
   NEW_DATA_SOURCE_FIELDS: `/api/uploader/datasource`,
-  // UPLOAD_FILE uses the uploader service's devyani endpoint
-  UPLOAD_FILE: `/devyani-service/api/upload`,
+  // UPLOAD_FILE uses the uploader service endpoint
+  UPLOAD_FILE: `/api/upload`,
   // Chunked upload endpoints for large files
-  UPLOAD_CHUNK: `/devyani-service/api/upload-chunk`,
-  UPLOAD_FINALIZE: `/devyani-service/api/upload-finalize`,
+  UPLOAD_CHUNK: `/api/upload-chunk`,
+  UPLOAD_FINALIZE: `/api/upload-finalize`,
   ANALYZE_COLUMNS: `${reconcii}/analyze-columns`,
+
+  // Database Collections
+  GET_DATABASE_COLLECTIONS: `${reconcii}/setup/collections`,
+  CREATE_DATABASE_COLLECTION: `${reconcii}/setup/new`,
+  GET_COLLECTION_UNIQUE_IDS: `${reconcii}/setup/new`,
+  GET_COLLECTION_KEYS: `${reconcii}/setup/collection/keys`,
+  GET_COLLECTION_FIELDS: `${reconcii}/setup/collection/fields`,
+  UPDATE_COLLECTION_FIELDS: `${reconcii}/setup/collection/fields`,
+
+  // Reports Formulas
+  GET_REPORTS_FORMULAS_ALL: `${reconcii}/reports/formulas/all`,
+  CREATE_REPORT_FORMULA: `${reconcii}/reports/formulas`,
+  GET_REPORT_FORMULAS: `${reconcii}/reports`,
+  UPDATE_REPORT_FORMULAS: `${reconcii}/reports`,
 
   ACTIVITY_CREATE: `${activityURL}/create`,
   ACTIVITY_SEARCH: `${activityURL}/list`,

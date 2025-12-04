@@ -31,8 +31,15 @@ instance.interceptors.request.use((config) => {
     config.baseURL = ssoBaseURL;
   }
   // Exclude /api/uploader/datasource from uploader service routing - it's on backend API
-  // Route /devyani-service/api/* to uploader service
-  if (config?.url?.includes('/devyani-service/api/') || (config?.url?.includes(reconcii) && !config?.url?.includes('/api/uploader/datasource'))) {
+  // Route upload endpoints to uploader service
+  if (
+    config?.url?.includes("/api/upload") ||
+    config?.url?.includes("/api/upload-chunk") ||
+    config?.url?.includes("/api/upload-finalize") ||
+    config?.url?.includes("/devyani-service/api/") ||
+    (config?.url?.includes(reconcii) &&
+      !config?.url?.includes("/api/uploader/datasource"))
+  ) {
     config.baseURL = reconciiBaseURL;
   }
   if (config?.url?.includes(activityURL)) {

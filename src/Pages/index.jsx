@@ -16,6 +16,9 @@ import MainDashboard from "./Pages/MainDashboard";
 import Vouchers from "./Pages/Vouchers";
 import ExcelDBMapping from "./Pages/ExcelDBMapping";
 import AuditLog from "./Pages/AuditLog";
+import DatabaseCollections from "./Pages/DatabaseCollections";
+import CollectionColumns from "./Pages/DatabaseCollections/CollectionColumns";
+import ManageFormulas from "./Pages/DefineLogic/ManageFormulas";
 
 function AdminNavigator() {
   function WithFooterOnly(children) {
@@ -88,6 +91,11 @@ function AdminNavigator() {
           element={WithSidebar(<DefineLogic />, "definelogic")}
         />
         <Route
+          path="/definelogic/manage-formulas"
+          exact
+          element={WithSidebar(<ManageFormulas />, "definelogic")}
+        />
+        <Route
           path="/uploads"
           exact
           element={WithSidebar(<Uploads />, "uploads")}
@@ -101,6 +109,16 @@ function AdminNavigator() {
           path="/reports"
           exact
           element={WithSidebar(<Reports />, "reports")}
+        />
+        <Route
+          path="/database-collection"
+          exact
+          element={WithSidebar(<DatabaseCollections />, "database-collection")}
+        />
+        <Route
+          path="/database-collection/columns"
+          exact
+          element={WithSidebar(<CollectionColumns />, "database-collection")}
         />
         <Route
           path="/change-password"

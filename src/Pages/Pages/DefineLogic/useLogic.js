@@ -3,6 +3,7 @@ import { apiEndpoints } from "../../../ServiceRequest/APIEndPoints";
 import {
   requestCallGet,
   requestCallPost,
+  requestCallPut,
 } from "../../../ServiceRequest/APIFunctions";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -267,11 +268,141 @@ const useLogic = () => {
     };
   };
 
+  const fetchReportsFormulas = async () => {
+    setLoading(true);
+    try {
+      const response = await requestCallGet(
+        apiEndpoints.GET_REPORTS_FORMULAS_ALL
+      );
+      if (response.status) {
+        return response?.data?.data?.formulas || [];
+      } else {
+        setToastMessage({
+          message: response.message || "Failed to fetch reports formulas",
+          type: "error",
+        });
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching reports formulas:", error);
+      setToastMessage({
+        message: "Error loading reports formulas",
+        type: "error",
+      });
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createReportFormula = async (reportName, formulas = []) => {
+    setLoading(true);
+    try {
+      const requestBody = {
+        report_name: reportName,
+        formulas: formulas,
+      };
+
+      const response = await requestCallPost(
+        apiEndpoints.CREATE_REPORT_FORMULA,
+        requestBody
+      );
+
+      if (response.status) {
+        setToastMessage({
+          message:
+            response?.data?.message || "Report formula created successfully",
+          type: "success",
+        });
+        return true;
+      } else {
+        setToastMessage({
+          message: response.message || "Failed to create report formula",
+          type: "error",
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("Error creating report formula:", error);
+      setToastMessage({
+        message: "Error creating report formula",
+        type: "error",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchReportFormulas = async (reportName) => {
+    setLoading(true);
+    try {
+      const response = await requestCallGet(
+        `${apiEndpoints.GET_REPORT_FORMULAS}/${reportName}`
+      );
+      if (response.status) {
+        return response?.data?.data || null;
+      } else {
+        setToastMessage({
+          message: response.message || "Failed to fetch report formulas",
+          type: "error",
+        });
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching report formulas:", error);
+      setToastMessage({
+        message: "Error loading report formulas",
+        type: "error",
+      });
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateReportFormulas = async (reportName, formulas) => {
+    setLoading(true);
+    try {
+      const response = await requestCallPut(
+        `${apiEndpoints.UPDATE_REPORT_FORMULAS}/${reportName}/formulas`,
+        { formulas }
+      );
+      if (response.status) {
+        setToastMessage({
+          message:
+            response?.data?.message || "Report formulas updated successfully",
+          type: "success",
+        });
+        return true;
+      } else {
+        setToastMessage({
+          message: response.message || "Failed to update report formulas",
+          type: "error",
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("Error updating report formulas:", error);
+      setToastMessage({
+        message: "Error updating report formulas",
+        type: "error",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     saveFormulas,
     getTenderList,
     getTableList,
     validateFormula,
+    fetchReportsFormulas,
+    createReportFormula,
+    fetchReportFormulas,
+    updateReportFormulas,
   };
 };
 
