@@ -361,12 +361,27 @@ const useLogic = () => {
     }
   };
 
-  const updateReportFormulas = async (reportName, formulas) => {
+  const updateReportFormulas = async (
+    reportName,
+    formulas,
+    mapping_keys = null,
+    conditions = null
+  ) => {
     setLoading(true);
     try {
+      const requestBody = { formulas };
+      // Include mapping_keys if provided
+      if (mapping_keys !== null) {
+        requestBody.mapping_keys = mapping_keys;
+      }
+      // Include conditions if provided
+      if (conditions !== null) {
+        requestBody.conditions = conditions;
+      }
+
       const response = await requestCallPut(
         `${apiEndpoints.UPDATE_REPORT_FORMULAS}/${reportName}/formulas`,
-        { formulas }
+        requestBody
       );
       if (response.status) {
         setToastMessage({

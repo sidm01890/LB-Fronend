@@ -19,6 +19,8 @@ const useUploads = () => {
   const [values, setValues] = useState(BLANK_FILTERS);
   const [files, setFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [showUploadView, setShowUploadView] = useState(false);
 
   const handleFileChange = (e) => {
     setFiles(e);
@@ -30,7 +32,10 @@ const useUploads = () => {
 
   useEffect(() => {
     fetchDatabaseCollections();
-  }, []);
+    if (!showUploadView) {
+      fetchUploadedFiles();
+    }
+  }, [showUploadView]);
 
   const fetchDatabaseCollections = async () => {
     try {
@@ -56,6 +61,34 @@ const useUploads = () => {
         message: "Error loading database collections",
         type: "error",
       });
+    }
+  };
+
+  const fetchUploadedFiles = async () => {
+    setLoading(true);
+    try {
+      const response = await requestCallGet(apiEndpoints.GET_UPLOADED_FILES);
+      if (response.status) {
+        const uploadedFilesList = response?.data?.data?.uploaded_files || [];
+        setUploadedFiles(
+          Array.isArray(uploadedFilesList) ? uploadedFilesList : []
+        );
+      } else {
+        setUploadedFiles([]);
+        setToastMessage({
+          message: response.message || "Failed to fetch uploaded files",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching uploaded files:", error);
+      setUploadedFiles([]);
+      setToastMessage({
+        message: "Error loading uploaded files",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -271,6 +304,9 @@ const useUploads = () => {
         message: "File uploaded successfully.",
         type: "success",
       });
+      // Refresh uploaded files list and switch to list view
+      setShowUploadView(false);
+      fetchUploadedFiles();
     } catch (error) {
       console.error(error);
       setUploadProgress(0);
@@ -295,6 +331,10 @@ const useUploads = () => {
     onSubmit,
     files,
     uploadProgress,
+    uploadedFiles,
+    fetchUploadedFiles,
+    showUploadView,
+    setShowUploadView,
   };
 };
 

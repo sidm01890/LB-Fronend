@@ -18,7 +18,6 @@ const DefineLogic = () => {
   const navigate = useNavigate();
   const { getTenderList, fetchReportsFormulas, createReportFormula } =
     useLogic();
-  let { tableList, logicGroups } = useSelector((state) => state.LogicsService);
   const [reportsList, setReportsList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -122,24 +121,6 @@ const DefineLogic = () => {
 
   const handleViewColumns = (report) => {
     navigate(`/definelogic/manage-formulas?report=${report?.report_name}`);
-  };
-
-  const getGroupName = (item, index) => {
-    let groupName = `Group ${index + 1} (`;
-    if (item?.effectiveFrom) {
-      groupName += moment(item?.effectiveFrom).format("DD MMM, YYYY");
-    } else {
-      groupName += "From Start";
-    }
-    groupName += " to ";
-    if (item?.effectiveTo && item.effectiveTo !== "2099-12-31") {
-      groupName += moment(item?.effectiveTo).format("DD MMM, YYYY");
-    } else {
-      groupName += " Till Date";
-    }
-
-    groupName += ")";
-    return groupName;
   };
 
   return (

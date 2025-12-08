@@ -13,20 +13,15 @@ const CustomInput = ({
   accept = "",
   maxLength,
   additionalInputStyle = {},
+  additionalContainerStyle = { marginBottom: "15px" },
 }) => {
   const [currentType, setCurrentType] = useState(type);
 
   return (
-    <div style={{ marginBottom: "15px" }}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-        }}
-      >
+    <div style={{ ...additionalContainerStyle }}>
+      <div>
         {label && (
-          <label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             {label} {required && <span style={{ color: "#ff0000" }}>*</span>}
           </label>
         )}

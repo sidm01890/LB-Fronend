@@ -30,7 +30,14 @@ const getNextDate = (dateString) => {
   return moment(dateString).add(1, "day").format("YYYY-MM-DD");
 };
 
-const SetLogics = ({ group, index, customDataSetOptions, reportName }) => {
+const SetLogics = ({
+  group,
+  index,
+  customDataSetOptions,
+  reportName,
+  mappingKeys = null,
+  conditions = null,
+}) => {
   const dispatch = useDispatch();
   const { setToastMessage, setLoading } = useLoader();
   let { tableList, activeLogic, logicGroups } = useSelector(
@@ -127,13 +134,13 @@ const SetLogics = ({ group, index, customDataSetOptions, reportName }) => {
 
     // If reportName is provided, we're in ManageFormulas context - use PUT API
     if (reportName) {
-      // Transform logicData to the required format
-      const formulas = logicData.map((formula) => ({
-        formula_name: formula.logicNameKey || formula.logicName,
-        formula_value: formula.excelFormulaText || formula.formulaText || "",
-      }));
-
-      const success = await updateReportFormulas(reportName, formulas);
+      // Send formulas, mapping_keys, and conditions together
+      const success = await updateReportFormulas(
+        reportName,
+        logicData,
+        mappingKeys,
+        conditions
+      );
       if (success) {
         // Update Redux state to reflect the saved state
         let logicGroupList = [...logicGroups];
@@ -175,33 +182,33 @@ const SetLogics = ({ group, index, customDataSetOptions, reportName }) => {
     dispatch(setLogicGroups(logicGroupList));
   };
 
-  const copyGroup = () => {
-    let logicGroupList = [...logicGroups];
-    if (group?.effectiveTo === "" || group?.effectiveTo === "2099-12-31") {
-      setToastMessage({
-        message:
-          "Cannot copy this group. Please add effect to date and save before copying.",
-        type: "error",
-      });
-      return;
-    }
-    let ele = {
-      ...group,
-      effectiveFrom: getNextDate(group?.effectiveTo),
-      effectiveTo: "",
-      id: undefined,
-    };
-    logicGroupList.push(ele);
-    dispatch(setLogicGroups(logicGroupList));
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setToastMessage({
-        message: "Group successfully copied",
-        type: "success",
-      });
-    }, 3000);
-  };
+  // const copyGroup = () => {
+  //   let logicGroupList = [...logicGroups];
+  //   if (group?.effectiveTo === "" || group?.effectiveTo === "2099-12-31") {
+  //     setToastMessage({
+  //       message:
+  //         "Cannot copy this group. Please add effect to date and save before copying.",
+  //       type: "error",
+  //     });
+  //     return;
+  //   }
+  //   let ele = {
+  //     ...group,
+  //     effectiveFrom: getNextDate(group?.effectiveTo),
+  //     effectiveTo: "",
+  //     id: undefined,
+  //   };
+  //   logicGroupList.push(ele);
+  //   dispatch(setLogicGroups(logicGroupList));
+  //   setLoading(true);
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //     setToastMessage({
+  //       message: "Group successfully copied",
+  //       type: "success",
+  //     });
+  //   }, 3000);
+  // };
 
   return (
     <div className="p-6 flex-1 font-Roboto">

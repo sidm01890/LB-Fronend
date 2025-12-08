@@ -267,6 +267,7 @@ const apiEndpoints = {
   GET_COLLECTION_KEYS: `${reconcii}/setup/collection/keys`,
   GET_COLLECTION_FIELDS: `${reconcii}/setup/collection/fields`,
   UPDATE_COLLECTION_FIELDS: `${reconcii}/setup/collection/fields`,
+  GET_UPLOADED_FILES: `${reconcii}/setup/uploaded-files`,
 
   // Reports Formulas
   GET_REPORTS_FORMULAS_ALL: `${reconcii}/reports/formulas/all`,
