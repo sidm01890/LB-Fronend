@@ -181,7 +181,7 @@ const apiEndpoints = {
   // Node
   _3PO_DATA: `${reconciliationNodeURL}/threePODashboardData`,
   DASHBOARD_DATA: `${reconciliationNodeURL}/instore-data`,
-
+  
   // New Dashboard Sales API (from daily_sales_summary table)
   DASHBOARD_SALES: `${reconciliationNodeURL}/dashboard-sales`,
 

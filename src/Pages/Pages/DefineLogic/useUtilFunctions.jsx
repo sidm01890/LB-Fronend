@@ -9,7 +9,7 @@ const OPERATOR_LIST = [
   { value: "-", label: "-" },
   { value: "*", label: "*" },
   { value: "/", label: "/" },
-  { value: "=", label: "=" },
+  // { value: "=", label: "=" },
 ];
 
 const ONLY_EQUAL_OPERATOR = [{ value: "=", label: "=" }];
@@ -34,7 +34,9 @@ const replaceFirstOccurrence = (inputString, target, replacement) => {
 
 const useUtilFunctions = (dataSetOptions) => {
   const dispatch = useDispatch();
-  let { logicData, activeLogic } = useSelector((state) => state.LogicsService);
+  let { logicData, activeLogic, activeLogicIndex } = useSelector(
+    (state) => state.LogicsService
+  );
   const renderFormula = (activeFormula) => {
     let labelText = "";
     let tableColumnFormula = "";
@@ -512,8 +514,22 @@ const useUtilFunctions = (dataSetOptions) => {
 
   function optionsForDataSet(index) {
     let options = [...dataSetOptions];
-    for (let i = 0; i < index; i++) {
-      options.push({ ...logicData[i], dataset_name: logicData[i].logicName });
+    // Add previously created formulas to the options
+    if (logicData && logicData.length > 0) {
+      logicData.forEach((formula, i) => {
+        // Skip the current formula if we're editing it
+        if (activeLogicIndex !== -1 && i === activeLogicIndex) {
+          return;
+        }
+        // Add all formulas that have a logicNameKey (regardless of field index)
+        if (formula?.logicNameKey) {
+          options.push({
+            ...formula,
+            dataset_name: formula.logicNameKey,
+            dataset_type: "Formula",
+          });
+        }
+      });
     }
     return options;
   }
@@ -596,6 +612,7 @@ const useUtilFunctions = (dataSetOptions) => {
     renderFormula,
     renderMiddleFieldView,
     handleFieldValueChange,
+    onChangeCustomInput,
   };
 };
 

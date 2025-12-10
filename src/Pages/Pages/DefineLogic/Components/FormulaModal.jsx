@@ -57,6 +57,7 @@ const FormulaModal = ({ dataSetOptions }) => {
       formulaText: processedFormula?.normalizedFormula,
       excelFormulaText: processedFormula?.excelFormulaText,
       logicNameKey: processedFormula?.logicNameKey,
+      modalType: "formula",
     };
     let allLogics = [...logicData];
     if (activeLogicIndex === -1) {
@@ -167,7 +168,7 @@ const FormulaModal = ({ dataSetOptions }) => {
             </button>
           </div>
         </div>
-        <div className="flex-1 p-3">
+        <div className="flex-1 p-3" style={{ overflowY: "auto" }}>
           <div>
             <div className="logicView">
               <div className="flex mb-3">

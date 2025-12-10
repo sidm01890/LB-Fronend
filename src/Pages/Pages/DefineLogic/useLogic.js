@@ -194,19 +194,36 @@ const useLogic = () => {
   const validateFormula = (effectiveType, effectiveFrom, effectiveTo) => {
     setLoading(true);
     let allFormulas = [...logicData];
-    let formulaNames = [];
     let validationStatus = true;
+
+    // First, collect all formula names to check against
+    let allFormulaNames = allFormulas
+      .map((formula) => formula?.logicNameKey)
+      .filter((name) => name); // Remove any undefined/null values
+
+    // Check for duplicate formula names
+    let duplicateNames = allFormulaNames.filter(
+      (name, index) => allFormulaNames.indexOf(name) !== index
+    );
+
     let verifiedFormula = allFormulas?.map((formula) => {
-      // Validate this formula name first
-      if (formulaNames?.includes(formula?.logicNameKey)) {
+      // Validate duplicate formula name
+      if (duplicateNames?.includes(formula?.logicNameKey)) {
         formula = { ...formula, error: "Duplicate Formula Name" };
         validationStatus = false;
         return formula;
       }
+
       // Get Other Formula used in this Formula
       let otherFormulas = extractUppercaseVariables(formula?.formulaText);
       if (otherFormulas?.length > 0) {
-        let status = checkArraySubset(otherFormulas, formulaNames);
+        // Filter out the formula's own name (to avoid self-reference errors)
+        let referencedFormulas = otherFormulas.filter(
+          (name) => name !== formula?.logicNameKey
+        );
+
+        // Check if all referenced formulas exist in the complete list
+        let status = checkArraySubset(referencedFormulas, allFormulaNames);
         if (!status?.isSubset) {
           validationStatus = false;
           formula = {
@@ -250,7 +267,6 @@ const useLogic = () => {
         dbFields: dbFields?.join(", "),
         createdBy: "ADMIN",
       };
-      formulaNames?.push(formula.logicNameKey);
       return response;
     });
 
@@ -361,6 +377,56 @@ const useLogic = () => {
     }
   };
 
+  const validateReportFormulas = (formulas) => {
+    let validationStatus = true;
+
+    // First, collect all formula names to check against
+    let allFormulaNames = formulas
+      .map((formula) => formula?.logicNameKey)
+      .filter((name) => name); // Remove any undefined/null values
+
+    // Check for duplicate formula names
+    let duplicateNames = allFormulaNames.filter(
+      (name, index) => allFormulaNames.indexOf(name) !== index
+    );
+
+    let verifiedFormulas = formulas?.map((formula) => {
+      // Validate duplicate formula name
+      if (duplicateNames?.includes(formula?.logicNameKey)) {
+        formula = { ...formula, error: "Duplicate Formula Name" };
+        validationStatus = false;
+        return formula;
+      }
+
+      // Get Other Formula used in this Formula
+      let otherFormulas = extractUppercaseVariables(formula?.formulaText);
+      if (otherFormulas?.length > 0) {
+        // Filter out the formula's own name (to avoid self-reference errors)
+        let referencedFormulas = otherFormulas.filter(
+          (name) => name !== formula?.logicNameKey
+        );
+
+        // Check if all referenced formulas exist in the complete list
+        let status = checkArraySubset(referencedFormulas, allFormulaNames);
+        if (!status?.isSubset) {
+          validationStatus = false;
+          formula = {
+            ...formula,
+            error: `${status?.missingItems[0]} is undefined.`,
+          };
+          return formula;
+        }
+      }
+
+      return formula;
+    });
+
+    return {
+      isValid: validationStatus,
+      formulas: verifiedFormulas,
+    };
+  };
+
   const updateReportFormulas = async (
     reportName,
     formulas,
@@ -369,7 +435,21 @@ const useLogic = () => {
   ) => {
     setLoading(true);
     try {
-      const requestBody = { formulas };
+      // Validate formulas before saving
+      const validationResult = validateReportFormulas(formulas);
+
+      if (!validationResult.isValid) {
+        // Update logicData with validation errors
+        dispatch(setLogicData(validationResult.formulas));
+        setToastMessage({
+          message: "Please fix formula errors before saving",
+          type: "error",
+        });
+        setLoading(false);
+        return false;
+      }
+
+      const requestBody = { formulas: validationResult.formulas };
       // Include mapping_keys if provided
       if (mapping_keys !== null) {
         requestBody.mapping_keys = mapping_keys;
@@ -414,6 +494,7 @@ const useLogic = () => {
     getTenderList,
     getTableList,
     validateFormula,
+    validateReportFormulas,
     fetchReportsFormulas,
     createReportFormula,
     fetchReportFormulas,
