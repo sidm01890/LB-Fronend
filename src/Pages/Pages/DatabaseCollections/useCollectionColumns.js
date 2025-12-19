@@ -102,6 +102,15 @@ const useCollectionColumns = (collectionName) => {
       return;
     }
 
+    // Client-side validation: Check if at least one column is selected
+    if (selectedColumns.length === 0) {
+      setToastMessage({
+        message: "At least one column must be selected. Please select at least one column before updating.",
+        type: "error",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const requestBody = {
@@ -122,15 +131,28 @@ const useCollectionColumns = (collectionName) => {
         // Optionally refresh the fields to get updated data
         fetchCollectionFields();
       } else {
+        // Extract error message from response.data or response.message
+        const errorMsg = response?.data?.details?.[0]?.msg 
+                      || response?.data?.detail 
+                      || response?.message 
+                      || "Failed to update fields";
+        
         setToastMessage({
-          message: response.message || "Failed to update fields",
+          message: errorMsg,
           type: "error",
         });
       }
     } catch (error) {
       console.error("Error updating collection fields:", error);
+      
+      // Extract error message from catch block
+      const errorMsg = error?.response?.data?.details?.[0]?.msg 
+                    || error?.response?.data?.detail 
+                    || error?.message 
+                    || "Error updating fields";
+      
       setToastMessage({
-        message: "Error updating fields",
+        message: errorMsg,
         type: "error",
       });
     } finally {

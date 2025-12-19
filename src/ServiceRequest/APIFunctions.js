@@ -58,10 +58,25 @@ export async function requestCallPost(
         console.log("[requestCallPost] ===== API REQUEST END (Error) =====");
       }
       console.log(err);
+      
+      // Extract error details from axios error response
+      const errorResponse = err?.response?.data || err?.data || {};
+      const errorDetails = errorResponse?.details || [];
+      
+      // Extract first validation error message
+      const validationError = errorDetails[0]?.msg;
+      
+      // Fallback chain for error message
+      const errorMessage = validationError
+        || errorResponse?.detail
+        || errorResponse?.error
+        || err?.message
+        || "An error occurred";
+      
       return {
         status: false,
-        message: err,
-        data: null,
+        message: errorMessage,
+        data: errorResponse,
       };
     });
 }

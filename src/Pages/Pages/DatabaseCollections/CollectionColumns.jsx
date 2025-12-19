@@ -49,9 +49,15 @@ export default function CollectionColumns() {
         <div className="pt-3 w-full">
           <div className="flex justify-end mb-4">
             <div>
+              {selectedColumns.length === 0 && (
+                <div className="mb-2 text-sm text-amber-600 font-medium">
+                  ⚠️ At least one column must be selected
+                </div>
+              )}
               <PrimaryButton
                 label="Update Selected Fields"
                 onClick={updateCollectionFields}
+                disabled={selectedColumns.length === 0}
               />
             </div>
           </div>
