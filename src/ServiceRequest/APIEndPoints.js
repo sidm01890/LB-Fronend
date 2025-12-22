@@ -253,27 +253,29 @@ const apiEndpoints = {
   // NEW_DATA_SOURCE_FIELDS uses backend API (not uploader service) for proper data structure
   // Note: This endpoint is on the backend API, not the uploader service
   NEW_DATA_SOURCE_FIELDS: `/api/uploader/datasource`,
-  // UPLOAD_FILE uses the uploader service endpoint
+  // UPLOAD_FILE uses the uploader service endpoint (port 8010)
   UPLOAD_FILE: `/api/upload`,
-  // Chunked upload endpoints for large files
+  // Chunked upload endpoints for large files (uploader service - port 8010)
   UPLOAD_CHUNK: `/api/upload-chunk`,
   UPLOAD_FINALIZE: `/api/upload-finalize`,
   ANALYZE_COLUMNS: `${reconcii}/analyze-columns`,
 
-  // Database Collections
-  GET_DATABASE_COLLECTIONS: `${reconcii}/setup/collections`,
-  CREATE_DATABASE_COLLECTION: `${reconcii}/setup/new`,
-  GET_COLLECTION_UNIQUE_IDS: `${reconcii}/setup/new`,
-  GET_COLLECTION_KEYS: `${reconcii}/setup/collection/keys`,
-  GET_COLLECTION_FIELDS: `${reconcii}/setup/collection/fields`,
-  UPDATE_COLLECTION_FIELDS: `${reconcii}/setup/collection/fields`,
-  GET_UPLOADED_FILES: `${reconcii}/setup/uploaded-files`,
+  // Database Collections - Now using backend API (port 8034) with /api prefix
+  // Note: These endpoints have been moved from uploader service to backend service
+  GET_DATABASE_COLLECTIONS: `/api/setup/collections`,
+  CREATE_DATABASE_COLLECTION: `/api/setup/new`,
+  GET_COLLECTION_UNIQUE_IDS: `/api/setup/new`,
+  GET_COLLECTION_KEYS: `/api/setup/collection/keys`,
+  GET_COLLECTION_FIELDS: `/api/setup/collection/fields`,
+  UPDATE_COLLECTION_FIELDS: `/api/setup/collection/fields`,
+  GET_UPLOADED_FILES: `/api/setup/uploaded-files`,
 
-  // Reports Formulas
-  GET_REPORTS_FORMULAS_ALL: `${reconcii}/reports/formulas/all`,
-  CREATE_REPORT_FORMULA: `${reconcii}/reports/formulas`,
-  GET_REPORT_FORMULAS: `${reconcii}/reports`,
-  UPDATE_REPORT_FORMULAS: `${reconcii}/reports`,
+  // Reports Formulas - Now using backend API (port 8034) with /api prefix
+  // Note: These endpoints have been moved from uploader service to backend service
+  GET_REPORTS_FORMULAS_ALL: `/api/reports/formulas/all`,
+  CREATE_REPORT_FORMULA: `/api/reports/formulas`,
+  GET_REPORT_FORMULAS: `/api/reports`,
+  UPDATE_REPORT_FORMULAS: `/api/reports`,
 
   ACTIVITY_CREATE: `${activityURL}/create`,
   ACTIVITY_SEARCH: `${activityURL}/list`,

@@ -30,17 +30,28 @@ instance.interceptors.request.use((config) => {
   if (config?.url?.includes(sso)) {
     config.baseURL = ssoBaseURL;
   }
-  // Exclude /api/uploader/datasource from uploader service routing - it's on backend API
-  // Route upload endpoints to uploader service
+  // Route setup and report endpoints to backend API (port 8034)
+  // These endpoints have been moved from uploader service to backend service
+  // Now using /api/setup/* and /api/reports/* instead of /api/uploader/setup/* and /api/uploader/reports/*
   if (
+    config?.url?.includes("/api/setup/") ||
+    config?.url?.includes("/api/reports/") ||
+    config?.url?.includes("/api/uploader/datasource")
+  ) {
+    config.baseURL = baseURL; // Use backend baseURL (port 8034)
+  }
+  // Route upload endpoints to uploader service (port 8010)
+  else if (
     config?.url?.includes("/api/upload") ||
     config?.url?.includes("/api/upload-chunk") ||
     config?.url?.includes("/api/upload-finalize") ||
     config?.url?.includes("/devyani-service/api/") ||
     (config?.url?.includes(reconcii) &&
-      !config?.url?.includes("/api/uploader/datasource"))
+      !config?.url?.includes("/api/uploader/datasource") &&
+      !config?.url?.includes("/api/setup/") &&
+      !config?.url?.includes("/api/reports/"))
   ) {
-    config.baseURL = reconciiBaseURL;
+    config.baseURL = reconciiBaseURL; // Use uploader baseURL (port 8010)
   }
   if (config?.url?.includes(activityURL)) {
     config.baseURL = reconciiAdminBaseURL;
