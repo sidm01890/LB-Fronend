@@ -523,11 +523,17 @@ const useUtilFunctions = (dataSetOptions) => {
         }
         // Add all formulas that have a logicNameKey (regardless of field index)
         if (formula?.logicNameKey) {
-          options.push({
-            ...formula,
-            dataset_name: formula.logicNameKey,
-            dataset_type: "Formula",
-          });
+          // Check if this formula already exists in options to prevent duplicates
+          const alreadyExists = options.some(
+            (opt) => opt.dataset_name === formula.logicNameKey || opt.logicNameKey === formula.logicNameKey
+          );
+          if (!alreadyExists) {
+            options.push({
+              ...formula,
+              dataset_name: formula.logicNameKey,
+              dataset_type: "Formula",
+            });
+          }
         }
       });
     }

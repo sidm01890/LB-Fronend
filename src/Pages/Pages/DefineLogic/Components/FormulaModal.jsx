@@ -186,7 +186,7 @@ const FormulaModal = ({ dataSetOptions }) => {
                       handleFieldValueChange("logicName", e.target.value);
                     }}
                   />
-                  <div className="flex mt-2 gap-2">
+                  {/* <div className="flex mt-2 gap-2">
                     <div>
                       <input
                         type="checkbox"
@@ -201,7 +201,7 @@ const FormulaModal = ({ dataSetOptions }) => {
                       />
                     </div>
                     Common Value for Multiple Columns
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className="flex">
