@@ -181,7 +181,7 @@ const apiEndpoints = {
   // Node
   _3PO_DATA: `${reconciliationNodeURL}/threePODashboardData`,
   DASHBOARD_DATA: `${reconciliationNodeURL}/instore-data`,
-  
+
   // New Dashboard Sales API (from daily_sales_summary table)
   DASHBOARD_SALES: `${reconciliationNodeURL}/dashboard-sales`,
 
@@ -276,6 +276,14 @@ const apiEndpoints = {
   CREATE_REPORT_FORMULA: `/api/reports/formulas`,
   GET_REPORT_FORMULAS: `/api/reports`,
   UPDATE_REPORT_FORMULAS: `/api/reports`,
+
+  // Delta Columns - Backend API endpoints
+  GET_DELTA_COLUMNS: `/api/reports`, // GET /api/reports/{report_name}/delta-columns
+  UPDATE_DELTA_COLUMNS: `/api/reports`, // PUT /api/reports/{report_name}/delta-columns
+
+  // Reasons - Backend API endpoints
+  GET_REASONS: `/api/reports`, // GET /api/reports/{report_name}/reasons
+  UPDATE_REASONS: `/api/reports`, // PUT /api/reports/{report_name}/reasons
 
   ACTIVITY_CREATE: `${activityURL}/create`,
   ACTIVITY_SEARCH: `${activityURL}/list`,

@@ -84,12 +84,6 @@ const Sidebar = () => {
   let path = parm.pathname;
 
   useEffect(() => {
-    if (path) {
-      selectedSidebar(path);
-    }
-  }, [path]);
-
-  useEffect(() => {
     let allowedModules = [];
     try {
       let allowedModuleStr = localStorage.getItem("allowedModules");
@@ -112,14 +106,60 @@ const Sidebar = () => {
     }
   }, []);
 
-  const selectedSidebar = (key) => {
-    // console.log(")(", key);
+  useEffect(() => {
+    if (path && menuArray.length > 0) {
+      selectedSidebar(path);
+    }
+  }, [path, menuArray]);
 
-    const activeMenuIndex = menuArray?.findIndex((menu) =>
-      menu?.route?.includes(key)
-    );
+  const selectedSidebar = (currentPath) => {
+    if (!currentPath || menuArray.length === 0) return;
+
+    // Find the menu item that matches the current path
+    // Priority: exact match > starts with match
+    let activeMenuIndex = -1;
+
+    // First, try to find exact match
+    activeMenuIndex = menuArray.findIndex((menu) => {
+      if (!menu?.route) return false;
+      return menu.route === currentPath;
+    });
+
+    // If no exact match, find the menu item whose route the current path starts with
+    // This handles nested routes like /definelogic/manage-formulas matching /definelogic
+    if (activeMenuIndex === -1) {
+      // Sort by route length (longest first) to match more specific routes first
+      const sortedMenus = [...menuArray].sort((a, b) => {
+        const aLength = a?.route?.length || 0;
+        const bLength = b?.route?.length || 0;
+        return bLength - aLength;
+      });
+
+      activeMenuIndex = sortedMenus.findIndex((menu) => {
+        if (!menu?.route) return false;
+        // Check if current path starts with menu route
+        // Also ensure it's not just a partial match (e.g., /definelogic should match /definelogic/manage-formulas)
+        // But /definelogic should NOT match /definelogic-something
+        const route = menu.route;
+        if (currentPath === route) return true;
+        if (currentPath.startsWith(route + "/")) return true;
+        return false;
+      });
+
+      // If found in sorted array, get the original index
+      if (activeMenuIndex !== -1) {
+        const foundMenu = sortedMenus[activeMenuIndex];
+        activeMenuIndex = menuArray.findIndex(
+          (menu) => menu.id === foundMenu.id && menu.route === foundMenu.route
+        );
+      }
+    }
+
     if (activeMenuIndex !== -1) {
       setSelectedIndex(activeMenuIndex);
+    } else {
+      // Default to first item if no match found
+      setSelectedIndex(0);
     }
   };
 
@@ -154,7 +194,24 @@ export default Sidebar;
 
 const MenuItem = ({ menuArray, selectedIndex, setSelectedIndex, index }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
+
+  // Check if this menu item is active based on current path
+  const isActive = () => {
+    if (!menuArray?.route) return false;
+    const currentPath = location.pathname;
+    const menuRoute = menuArray.route;
+
+    // Exact match
+    if (currentPath === menuRoute) return true;
+
+    // Check if current path starts with menu route (for nested routes)
+    // Ensure it's not just a partial match
+    if (currentPath.startsWith(menuRoute + "/")) return true;
+
+    return false;
+  };
 
   const onClick = (e) => {
     e.preventDefault();
@@ -170,10 +227,9 @@ const MenuItem = ({ menuArray, selectedIndex, setSelectedIndex, index }) => {
       <NavLink
         disabled={menuArray?.children}
         onClick={onClick}
-        to={"/"}
-        exact
+        to={menuArray?.route || "/"}
         className={`flex p-3 ${
-          selectedIndex === index ? "navLinkSelected" : "navLink"
+          isActive() || selectedIndex === index ? "navLinkSelected" : "navLink"
         }`}
       >
         {menuArray?.icon && (

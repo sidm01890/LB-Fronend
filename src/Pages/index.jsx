@@ -19,6 +19,8 @@ import AuditLog from "./Pages/AuditLog";
 import DatabaseCollections from "./Pages/DatabaseCollections";
 import CollectionColumns from "./Pages/DatabaseCollections/CollectionColumns";
 import ManageFormulas from "./Pages/DefineLogic/ManageFormulas";
+import ManageDeltaColumns from "./Pages/DefineLogic/ManageDeltaColumns";
+import ManageReasons from "./Pages/DefineLogic/ManageReasons";
 
 function AdminNavigator() {
   function WithFooterOnly(children) {
@@ -94,6 +96,16 @@ function AdminNavigator() {
           path="/definelogic/manage-formulas"
           exact
           element={WithSidebar(<ManageFormulas />, "definelogic")}
+        />
+        <Route
+          path="/definelogic/manage-delta-columns"
+          exact
+          element={WithSidebar(<ManageDeltaColumns />, "definelogic")}
+        />
+        <Route
+          path="/definelogic/manage-reasons"
+          exact
+          element={WithSidebar(<ManageReasons />, "definelogic")}
         />
         <Route
           path="/uploads"

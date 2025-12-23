@@ -13,11 +13,15 @@ import SecondaryButton from "../../../components/SecondaryButton";
 import CustomInput from "../../../components/CustomInput";
 import OutlineButton from "../../../components/OutlineButton";
 import { useNavigate } from "react-router-dom";
+import { apiEndpoints } from "../../../ServiceRequest/APIEndPoints";
+import { requestCallGet } from "../../../ServiceRequest/APIFunctions";
+import { useLoader } from "../../../Utils/Loader";
 
 const DefineLogic = () => {
   const navigate = useNavigate();
   const { getTenderList, fetchReportsFormulas, createReportFormula } =
     useLogic();
+  const { setLoading } = useLoader();
   const [reportsList, setReportsList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,9 +35,85 @@ const DefineLogic = () => {
     fetchReportsData();
   }, []);
 
+  const fetchDeltaColumnsCount = async (reportName) => {
+    try {
+      const response = await requestCallGet(
+        `${apiEndpoints.GET_DELTA_COLUMNS}/${reportName}/delta-columns`
+      );
+      if (response.status) {
+        let deltaColumnsData = response?.data?.data || response?.data;
+        if (!Array.isArray(deltaColumnsData)) {
+          if (
+            deltaColumnsData &&
+            typeof deltaColumnsData === "object" &&
+            deltaColumnsData.delta_columns
+          ) {
+            deltaColumnsData = deltaColumnsData.delta_columns;
+          } else {
+            deltaColumnsData = [];
+          }
+        }
+        return Array.isArray(deltaColumnsData) ? deltaColumnsData.length : 0;
+      }
+      return 0;
+    } catch (error) {
+      console.error(`Error fetching delta columns for ${reportName}:`, error);
+      return 0;
+    }
+  };
+
+  const fetchReasonsCount = async (reportName) => {
+    try {
+      const response = await requestCallGet(
+        `${apiEndpoints.GET_REASONS}/${reportName}/reasons`
+      );
+      if (response.status) {
+        let reasonsData = response?.data?.data || response?.data;
+        if (!Array.isArray(reasonsData)) {
+          if (
+            reasonsData &&
+            typeof reasonsData === "object" &&
+            reasonsData.reasons
+          ) {
+            reasonsData = reasonsData.reasons;
+          } else {
+            reasonsData = [];
+          }
+        }
+        return Array.isArray(reasonsData) ? reasonsData.length : 0;
+      }
+      return 0;
+    } catch (error) {
+      console.error(`Error fetching reasons for ${reportName}:`, error);
+      return 0;
+    }
+  };
+
   const fetchReportsData = async () => {
-    const data = await fetchReportsFormulas();
-    setReportsList(data);
+    setLoading(true);
+    try {
+      const data = await fetchReportsFormulas();
+      // Fetch counts for delta columns and reasons for each report
+      const reportsWithCounts = await Promise.all(
+        data.map(async (report) => {
+          const deltaColumnsCount = await fetchDeltaColumnsCount(
+            report.report_name
+          );
+          const reasonsCount = await fetchReasonsCount(report.report_name);
+          return {
+            ...report,
+            delta_columns_count: deltaColumnsCount,
+            reasons_count: reasonsCount,
+          };
+        })
+      );
+      setReportsList(reportsWithCounts);
+    } catch (error) {
+      console.error("Error fetching reports data:", error);
+      setReportsList([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openModal = () => {
@@ -123,6 +203,14 @@ const DefineLogic = () => {
     navigate(`/definelogic/manage-formulas?report=${report?.report_name}`);
   };
 
+  const handleViewDeltaColumns = (report) => {
+    navigate(`/definelogic/manage-delta-columns?report=${report?.report_name}`);
+  };
+
+  const handleViewReasons = (report) => {
+    navigate(`/definelogic/manage-reasons?report=${report?.report_name}`);
+  };
+
   return (
     <div className="">
       {/* Reports Table */}
@@ -155,11 +243,19 @@ const DefineLogic = () => {
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
                   <tr>
                     <th scope="col">Table Name</th>
-                    <th scope="col">Total Columns (Formulas)</th>
+                    <th scope="col" style={{ textAlign: "center" }}>
+                      Formulas
+                    </th>
+                    <th scope="col" style={{ textAlign: "center" }}>
+                      Delta Columns
+                    </th>
+                    <th scope="col" style={{ textAlign: "center" }}>
+                      Reasons
+                    </th>
                     <th
                       scope="col flex"
                       style={{
-                        width: "180px",
+                        width: "400px",
                         textAlign: "center",
                       }}
                     >
@@ -174,11 +270,33 @@ const DefineLogic = () => {
                       className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                     >
                       <td className="px-6 py-4">{report?.report_name}</td>
-                      <td className="px-6 py-4">{report?.formulas_count}</td>
-                      <td className="px-6 py-4 flex justify-center items-center">
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {report?.formulas_count || 0}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          {report?.delta_columns_count || 0}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          {report?.reasons_count || 0}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 flex justify-center items-center gap-2">
                         <OutlineButton
-                          label="Manage Formulas"
+                          label="Formulas"
                           onClick={() => handleViewColumns(report)}
+                        />
+                        <OutlineButton
+                          label="Delta Columns"
+                          onClick={() => handleViewDeltaColumns(report)}
+                        />
+                        <OutlineButton
+                          label="Reasons"
+                          onClick={() => handleViewReasons(report)}
                         />
                       </td>
                     </tr>
